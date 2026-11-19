@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>きょうの手帖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5efe3; --card:#fffdf8; --ink:#33373a; --sub:#6b6f6b; --line:#e6dfd0;
+  --green:#2f5d46; --green-d:#244a37; --green-soft:#e3eee6; --on-green:#fff; --danger:#a4443b;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1d211e; --card:#272c28; --ink:#ece8de; --sub:#a5aaa2; --line:#3a413b;
+    --green:#7fb897; --green-d:#97cbae; --green-soft:#2f3d34; --on-green:#16231b; --danger:#e08b82;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1d211e; --card:#272c28; --ink:#ece8de; --sub:#a5aaa2; --line:#3a413b;
+  --green:#7fb897; --green-d:#97cbae; --green-soft:#2f3d34; --on-green:#16231b; --danger:#e08b82;
+  color-scheme:dark;
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  line-height:1.7;font-size:16px}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 20px 56px}
+header{margin-bottom:24px}
+.brand{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px}
+.brand h1{font-size:1.1rem;margin:0;color:var(--green);letter-spacing:.08em}
+.date{color:var(--sub);font-size:.95rem}
+.lead{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.35;margin:14px 0 6px;font-weight:700}
+.sub{margin:0;color:var(--sub)}
+.tag{margin:4px 0 0;color:var(--green);font-weight:500}
+.progress{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 18px}
+.progress-top{display:flex;justify-content:space-between;font-size:.95rem;margin-bottom:8px}
+.bar{height:10px;background:var(--green-soft);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--green);border-radius:99px;transition:width .35s}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:20px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
+nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.g-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:48px;
+  padding:10px 14px;border:1px solid transparent;background:transparent;border-radius:14px;cursor:pointer;text-align:left}
+.g-btn:hover{background:var(--green-soft)}
+.g-btn[aria-current="true"]{background:var(--green);color:var(--on-green);font-weight:700}
+.count{min-width:28px;text-align:center;font-size:.85rem;padding:1px 8px;border-radius:99px;background:var(--green-soft);color:var(--green-d)}
+.g-btn[aria-current="true"] .count{background:rgba(255,255,255,.22);color:inherit}
+:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.hint h2{margin:0 0 4px;font-size:1.05rem}
+.hint .q{margin:0 0 12px;font-size:1.1rem;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:8px 16px;border-radius:99px;border:1px dashed var(--green);background:var(--green-soft);color:var(--green-d);cursor:pointer}
+.chip:hover{background:var(--green);color:var(--on-green)}
+.note{font-size:.85rem;color:var(--sub);margin:10px 0 0}
+.add{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.add-row{display:flex;gap:8px;flex-wrap:wrap}
+.field{flex:1 1 220px;min-height:48px;padding:10px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);min-width:0}
+select.field{flex:0 1 160px}
+.field:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+.btn{min-height:48px;padding:10px 20px;border-radius:14px;border:1.5px solid var(--green);background:var(--green);color:var(--on-green);font-weight:700;cursor:pointer}
+.btn:hover:not(:disabled){background:var(--green-d)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--green-d)}
+.btn.ghost:hover{background:var(--green-soft)}
+.btn.sm{min-height:40px;padding:6px 14px;font-size:.92rem}
+.btn.del{border-color:var(--danger);color:var(--danger);background:transparent}
+.btn.del:hover{background:var(--danger);color:var(--card)}
+.filters{display:flex;gap:6px;margin:20px 0 10px;flex-wrap:wrap}
+.f{min-height:42px;padding:6px 18px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);cursor:pointer}
+.f[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green);font-weight:700}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.task{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--card);flex-wrap:wrap}
+.task input[type=checkbox]{width:26px;height:26px;accent-color:var(--green);flex:none;cursor:pointer}
+.body{flex:1 1 160px;min-width:0}
+.title{overflow-wrap:anywhere}
+.task.done .title{text-decoration:line-through;color:var(--sub)}
+.badge{display:inline-block;margin-top:2px;font-size:.78rem;padding:0 10px;border-radius:99px;background:var(--green-soft);color:var(--green-d)}
+.acts{display:flex;gap:6px}
+.task.edit{background:var(--green-soft)}
+.task.edit .edit-row{flex:1 1 100%;display:flex;gap:8px;flex-wrap:wrap}
+.empty{text-align:center;padding:32px 12px;color:var(--sub)}
+.empty b{display:block;font-size:2rem;margin-bottom:4px}
+.live{position:absolute;left:-9999px}
+.g-tools{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.gform{margin-top:12px;padding:14px;border-radius:16px;background:var(--green-soft);display:flex;flex-direction:column;gap:8px}
+.gform .field{flex:none;width:100%;background:var(--card)}
+.field:disabled{opacity:.6}
+.gerr{color:var(--danger);margin:0;font-size:.9rem}
+.grow{display:flex;gap:8px;flex-wrap:wrap}
+.gnote{margin:0;font-size:.82rem;color:var(--sub)}
+@media (max-width:760px){
+  .wrap{padding:20px 14px 44px}
+  .layout{grid-template-columns:1fr}
+  nav ul{flex-direction:row;flex-wrap:wrap}
+  nav li{flex:0 0 auto}
+  .g-btn{min-height:44px;width:auto;border-color:var(--line)}
+  .acts{width:100%;justify-content:flex-end}
+  .add-row .btn{flex:1 1 100%}
+  select.field{flex:1 1 100%}
+}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>きょうの手帖</h1><span class="date" id="date"></span></div>
+    <p class="lead">今日は、何をしておこう？</p>
+    <p class="sub">質問のヒントを見ながら、気になることを書き出してみましょう。</p>
+    <p class="tag">思い出すところから、はじめよう。</p>
+    <div class="progress" aria-label="進み具合">
+      <div class="progress-top"><span id="pText"></span><span id="pPct"></span></div>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="bar"><i id="barFill"></i></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="card" aria-label="ジャンル"><ul id="genres"></ul><div id="gTools"></div></nav>
+
+    <main>
+      <section class="card hint">
+        <h2 id="hTitle"></h2>
+        <p class="q" id="hQ"></p>
+        <div class="chips" id="hEx"></div>
+        <p class="note" id="hNote">例を押すと入力欄に入ります。内容を確認してから追加できます。</p>
+
+        <div class="add">
+          <label for="newText" class="live">タスク名</label>
+          <div class="add-row">
+            <input class="field" id="newText" type="text" maxlength="120" placeholder="やることを書いてみましょう" autocomplete="off">
+            <label for="newGenre" class="live">ジャンル</label>
+            <select class="field" id="newGenre"></select>
+            <button class="btn" id="addBtn" type="button" disabled>追加する</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="filters" id="filters" role="group" aria-label="絞り込み"></div>
+      <ul class="list" id="list"></ul>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  var GENRES=[
+    {n:"身繕い",q:"身だしなみや、自分をいたわるためにしておきたいことは？",ex:["美容院を予約する","爪を整える","薬を受け取る"]},
+    {n:"買い物",q:"切らしているものや、買っておきたいものはありますか？",ex:["牛乳と卵を買う","洗剤を補充する","電池を買う"]},
+    {n:"家の営繕",q:"家の中で、直したい・整えたい場所はありますか？",ex:["電球を交換する","段ボールをまとめる","棚を片付ける"]},
+    {n:"在宅ワーク",q:"仕事で、今日ひとつ進めておきたいことは？",ex:["資料の下書きを作る","メールを返信する","経費を精算する"]},
+    {n:"学び・学習",q:"学びたいことや、少しでも進めたい練習はありますか？",ex:["本を10ページ読む","英語を15分練習する","講座の続きを見る"]},
+    {n:"家族の用事",q:"家族のために連絡・準備しておくことはありますか？",ex:["家族に予定を聞く","学校のお知らせを確認する","予約を取る"]},
+    {n:"その他",q:"ほかに、頭の片隅に残っていることはありますか？",ex:["友人に連絡する","書類を提出する","予定をカレンダーに入れる"]}
+  ];
+  var ALL="すべて", KEY="kyou-no-techo:tasks:v1";
+  var GKEY="kyou-no-techo:genres:v1";
+  var genres=loadGenres(), names=[];
+  refreshNames();
+  var tasks=load(), genre=ALL, filter="all", editingId=null, gMode=null;
+  function refreshNames(){names=genres.map(function(g){return g.n})}
+  function loadGenres(){
+    var out=null;
+    try{
+      var a=JSON.parse(localStorage.getItem(GKEY)||"null");
+      if(Array.isArray(a)){
+        out=a.filter(function(g){return g&&typeof g.n==="string"&&g.n.trim()}).map(function(g){
+          return {n:g.n,q:typeof g.q==="string"?g.q:"",ex:Array.isArray(g.ex)?g.ex.filter(function(x){return typeof x==="string"}):[]};
+        });
+      }
+    }catch(e){out=null}
+    if(!out||!out.length)out=JSON.parse(JSON.stringify(GENRES));
+    if(!out.some(function(g){return g.n==="その他"}))out.push({n:"その他",q:"",ex:[]});
+    return out;
+  }
+  function saveGenres(){try{localStorage.setItem(GKEY,JSON.stringify(genres))}catch(e){}}
+
+  var $=function(id){return document.getElementById(id)};
+  var elNew=$("newText"), elGenre=$("newGenre"), elAdd=$("addBtn"), elList=$("list");
+
+  function load(){
+    try{
+      var a=JSON.parse(localStorage.getItem(KEY)||"[]");
+      if(!Array.isArray(a))return [];
+      return a.filter(function(t){return t&&typeof t.text==="string"&&t.id}).map(function(t){
+        return {id:String(t.id),text:t.text,genre:names.indexOf(t.genre)>=0?t.genre:"その他",done:!!t.done,createdAt:t.createdAt||new Date().toISOString()};
+      });
+    }catch(e){return []}
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(tasks))}catch(e){}}
+  function uid(){
+    try{if(window.crypto&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}
+    return "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,9);
+  }
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  function defaultGenre(){return genre===ALL?"その他":genre}
+
+  /* 日付 */
+  $("date").textContent=new Date().toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+
+  /* セレクト生成 */
+  function fillSelect(sel,val){
+    sel.textContent="";
+    names.forEach(function(n){var o=el("option",null,n);o.value=n;sel.appendChild(o)});
+    sel.value=val;
+  }
+  fillSelect(elGenre,"その他");
+
+  /* ジャンル一覧 */
+  function renderGenres(){
+    var ul=$("genres");ul.textContent="";
+    [ALL].concat(names).forEach(function(n){
+      var c=n===ALL?tasks.length:tasks.filter(function(t){return t.genre===n}).length;
+      var li=el("li");
+      var b=el("button","g-btn");b.type="button";
+      b.setAttribute("aria-current",String(n===genre));
+      b.appendChild(el("span",null,n));
+      b.appendChild(el("span","count",String(c)));
+      b.onclick=function(){
+        genre=n;editingId=null;gMode=null;elGenre.value=defaultGenre();render();
+      };
+      li.appendChild(b);ul.appendChild(li);
+    });
+  }
+
+  /* ヒント */
+  function renderHint(){
+    var ex=$("hEx");ex.textContent="";
+    if(genre===ALL){
+      $("hTitle").textContent="思い出すヒント";
+      $("hQ").textContent="左のジャンルを選ぶと、思い出すための質問と例が出ます。";
+      $("hNote").hidden=true;
+      return;
+    }
+    var g=genres.filter(function(x){return x.n===genre})[0];
+    $("hTitle").textContent=g.n;
+    $("hQ").textContent=g.q||"このジャンルで、思い出したいことを書き出してみましょう。";
+    $("hNote").hidden=!g.ex.length;
+    g.ex.forEach(function(t){
+      var b=el("button","chip",t);b.type="button";
+      b.onclick=function(){elNew.value=t;updateAdd();elNew.focus()};
+      ex.appendChild(b);
+    });
+  }
+
+  /* 進捗 */
+  function renderProgress(){
+    var total=tasks.length,done=tasks.filter(function(t){return t.done}).length;
+    var pct=total?Math.round(done/total*100):0;
+    $("pText").textContent="完了 "+done+" / 全体 "+total+" 件";
+    $("pPct").textContent=pct+"%";
+    $("barFill").style.width=pct+"%";
+    $("bar").setAttribute("aria-valuenow",String(pct));
+  }
+
+  /* フィルター */
+  function renderFilters(){
+    var f=$("filters");f.textContent="";
+    [["all","すべて"],["todo","これから"],["done","完了"]].forEach(function(p){
+      var b=el("button","f",p[1]);b.type="button";
+      b.setAttribute("aria-pressed",String(filter===p[0]));
+      b.onclick=function(){filter=p[0];editingId=null;renderFilters();renderList()};
+      f.appendChild(b);
+    });
+  }
+
+  /* リスト */
+  function visible(){
+    var a=tasks.filter(function(t){
+      if(genre!==ALL&&t.genre!==genre)return false;
+      if(filter==="todo")return !t.done;
+      if(filter==="done")return t.done;
+      return true;
+    });
+    return a.map(function(t,i){return {t:t,i:i}}).sort(function(x,y){
+      if(x.t.done!==y.t.done)return x.t.done?1:-1;
+      return x.i-y.i;
+    }).map(function(o){return o.t});
+  }
+
+  function renderList(){
+    elList.textContent="";
+    var items=visible();
+    if(!items.length){
+      var li=el("li","card empty");
+      var msg;
+      if(!tasks.length)msg="まだタスクはありません。ヒントを見ながら、ひとつ書き出してみませんか？";
+      else if(filter==="done")msg="完了したタスクはまだありません。";
+      else if(filter==="todo")msg="これから取りかかるタスクはありません。おつかれさまでした。";
+      else msg="このジャンルのタスクはまだありません。ヒントを見ながら、ひとつ書き出してみませんか？";
+      li.appendChild(el("b",null,"📓"));li.appendChild(el("span",null,msg));
+      elList.appendChild(li);return;
+    }
+    items.forEach(function(t){elList.appendChild(t.id===editingId?editRow(t):viewRow(t))});
+  }
+
+  function viewRow(t){
+    var li=el("li","task"+(t.done?" done":""));
+    var cb=document.createElement("input");cb.type="checkbox";cb.checked=t.done;
+    cb.setAttribute("aria-label","「"+t.text+"」を完了にする");
+    cb.onchange=function(){t.done=cb.checked;save();render()};
+    var body=el("div","body");
+    body.appendChild(el("div","title",t.text));
+    body.appendChild(el("span","badge",t.genre));
+    var acts=el("div","acts");
+    var e=el("button","btn ghost sm","編集");e.type="button";
+    e.onclick=function(){editingId=t.id;renderList();var i=elList.querySelector(".edit input[type=text]");if(i){i.focus();i.select()}};
+    var d=el("button","btn del sm","削除");d.type="button";
+    d.onclick=function(){tasks=tasks.filter(function(x){return x.id!==t.id});save();render()};
+    acts.appendChild(e);acts.appendChild(d);
+    li.appendChild(cb);li.appendChild(body);li.appendChild(acts);
+    return li;
+  }
+
+  function editRow(t){
+    var li=el("li","task edit");
+    var row=el("div","edit-row");
+    var inp=el("input","field");inp.type="text";inp.value=t.text;inp.maxLength=120;
+    inp.setAttribute("aria-label","タスク名を編集");
+    var sel=el("select","field");fillSelect(sel,t.genre);sel.setAttribute("aria-label","ジャンルを編集");
+    var ok=el("button","btn sm","保存");ok.type="button";
+    var ng=el("button","btn ghost sm","キャンセル");ng.type="button";
+    function check(){ok.disabled=!inp.value.trim()}
+    function commit(){
+      var v=inp.value.trim();if(!v)return;
+      t.text=v;t.genre=sel.value;editingId=null;save();render();
+    }
+    function cancel(){editingId=null;renderList()}
+    function key(e){
+      if(e.isComposing||e.keyCode===229)return;
+      if(e.key==="Enter"){e.preventDefault();commit()}
+      else if(e.key==="Escape"){e.preventDefault();cancel()}
+    }
+    inp.oninput=check;inp.onkeydown=key;sel.onkeydown=key;ok.onclick=commit;ng.onclick=cancel;
+    check();
+    row.appendChild(inp);row.appendChild(sel);row.appendChild(ok);row.appendChild(ng);
+    li.appendChild(row);return li;
+  }
+
+  /* 追加 */
+  function updateAdd(){elAdd.disabled=!elNew.value.trim()}
+  function addTask(){
+    var v=elNew.value.trim();if(!v)return;
+    tasks.push({id:uid(),text:v,genre:elGenre.value,done:false,createdAt:new Date().toISOString()});
+    save();elNew.value="";updateAdd();
+    /* 追加先が絞り込みで見えない場合は表示を合わせる */
+    if(genre!==ALL&&genre!==elGenre.value){genre=elGenre.value;elGenre.value=defaultGenre()}
+    if(filter==="done")filter="all";
+    render();elNew.focus();
+  }
+  elNew.oninput=updateAdd;
+  elNew.onkeydown=function(e){
+    if(e.isComposing||e.keyCode===229)return;
+    if(e.key==="Enter"){e.preventDefault();addTask()}
+  };
+  elAdd.onclick=addTask;
+
+  /* ジャンルの追加・編集・削除 */
+  function openForm(m){
+    gMode=m;renderTools();
+    var i=$("gTools").querySelector(".gform input:not(:disabled)");if(i)i.focus();
+  }
+  function renderTools(){
+    var box=$("gTools");box.textContent="";
+    var row=el("div","g-tools");
+    var a=el("button","btn ghost sm","＋ ジャンルを追加");a.type="button";
+    a.onclick=function(){openForm({type:"add"})};
+    row.appendChild(a);
+    if(genre!==ALL){
+      var e=el("button","btn ghost sm","このジャンルを編集");e.type="button";
+      e.onclick=function(){openForm({type:"edit",name:genre})};
+      row.appendChild(e);
+    }
+    box.appendChild(row);
+    if(gMode)box.appendChild(genreForm());
+  }
+  function genreForm(){
+    var edit=gMode.type==="edit";
+    var cur=edit?genres.filter(function(g){return g.n===gMode.name})[0]:null;
+    if(edit&&!cur){gMode=null;return el("div")}
+    var f=el("div","gform");
+    f.appendChild(el("strong",null,edit?"ジャンルを編集":"ジャンルを追加"));
+    function mk(ph,label,val,max){
+      var i=el("input","field");i.type="text";i.placeholder=ph;i.maxLength=max;i.value=val||"";
+      i.setAttribute("aria-label",label);f.appendChild(i);return i;
+    }
+    var n=mk("ジャンル名（例：ペット）","ジャンル名",cur?cur.n:"",16);
+    if(cur&&cur.n==="その他"){n.disabled=true}
+    var q=mk("思い出すヒントの質問（任意）","ヒントの質問",cur?cur.q:"",60);
+    var ex=mk("例を「、」で区切って（任意）","例",cur?cur.ex.join("、"):"",120);
+    var err=el("p","gerr");err.setAttribute("role","alert");
+    var row=el("div","grow");
+    var ok=el("button","btn sm",edit?"保存":"追加");ok.type="button";
+    var ng=el("button","btn ghost sm","キャンセル");ng.type="button";
+    row.appendChild(ok);row.appendChild(ng);
+    function commit(){
+      var name=n.value.trim();
+      if(!name){err.textContent="ジャンル名を入力してください。";return}
+      if(name===ALL||names.some(function(x){return x===name&&(!edit||x!==cur.n)})){err.textContent="同じ名前のジャンルがあります。別の名前にしてください。";return}
+      var exs=ex.value.split(/[、,，\n]/).map(function(s){return s.trim()}).filter(Boolean).slice(0,6);
+      if(edit){
+        var old=cur.n;cur.n=name;cur.q=q.value.trim();cur.ex=exs;
+        if(old!==name){
+          tasks.forEach(function(t){if(t.genre===old)t.genre=name});
+          if(genre===old)genre=name;
+          save();
+        }
+      }else{
+        var idx=names.indexOf("その他");
+        genres.splice(idx<0?genres.length:idx,0,{n:name,q:q.value.trim(),ex:exs});
+        genre=name;
+      }
+      saveGenres();refreshNames();gMode=null;elGenre.value="";render();
+    }
+    function cancel(){gMode=null;renderTools()}
+    function key(e){
+      if(e.isComposing||e.keyCode===229)return;
+      if(e.key==="Enter"){e.preventDefault();commit()}
+      else if(e.key==="Escape"){e.preventDefault();cancel()}
+    }
+    [n,q,ex].forEach(function(i){i.onkeydown=key});
+    ok.onclick=commit;ng.onclick=cancel;
+    if(edit&&cur.n!=="その他"){
+      var del=el("button","btn del sm","削除");del.type="button";
+      var armed=false;
+      del.onclick=function(){
+        if(!armed){armed=true;del.textContent="もう一度押すと削除";return}
+        tasks.forEach(function(t){if(t.genre===cur.n)t.genre="その他"});
+        genres=genres.filter(function(g){return g!==cur});
+        genre=ALL;gMode=null;
+        save();saveGenres();refreshNames();elGenre.value="";render();
+      };
+      row.appendChild(del);
+    }
+    f.appendChild(err);f.appendChild(row);
+    if(edit)f.appendChild(el("p","gnote",cur.n==="その他"?"「その他」は名前を変えられません。ヒントと例は編集できます。":"削除すると、このジャンルのタスクは「その他」に移ります。"));
+    return f;
+  }
+
+  function render(){
+    fillSelect(elGenre,names.indexOf(elGenre.value)>=0?elGenre.value:defaultGenre());
+    renderGenres();renderTools();renderHint();renderProgress();renderFilters();renderList();
+  }
+  elGenre.value=defaultGenre();
+  render();
+})();
+</script>
+</body>
+</html>
